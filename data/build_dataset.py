@@ -142,7 +142,6 @@ def process_structures(input_path: str, output_path: str,
         db['metadata/seq'] = np.array([m['seq'] for m in metadata], dtype='S')
 
 def main():
-    """Main entry point for the script."""
     args = parse_arguments()
     
     try:
