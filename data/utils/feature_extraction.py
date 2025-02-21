@@ -28,7 +28,14 @@ def extract_dynamic_features(xyz, nn_topk):
 			cross_products[:, i, j, :] = np.cross(normalized_displacements[:, i, :], normalized_displacements[:, neighbor, :])
 	cross_products = cross_products.transpose(1,2,0,3)
 	motion_v = np.mean(cross_products, axis=2)
-	cosine_similarity = np.sum(cross_products * motion_v[:, :, np.newaxis, :], axis=-1)
+	
+	# Normalize
+	cross_products_magnitude = np.linalg.norm(cross_products, axis=-1, keepdims=True)
+	motion_v_magnitude = np.linalg.norm(motion_v, axis=-1, keepdims=True)
+	normalized_cross_products = cross_products / (cross_products_magnitude + epsilon)
+	normalized_motion_v = motion_v / (motion_v_magnitude + epsilon)
+	# Calculate cosine similarity
+	cosine_similarity = np.sum(normalized_cross_products * normalized_motion_v[:, :, np.newaxis, :], axis=-1)
 	motion_s = np.mean(cosine_similarity, axis=2)
 	motion_s_min = motion_s.min(axis=-1, keepdims=True)
 	motion_s_max = motion_s.max(axis=-1, keepdims=True)
