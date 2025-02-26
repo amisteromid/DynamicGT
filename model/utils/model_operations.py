@@ -153,11 +153,6 @@ class StateUpdate(pt.nn.Module):
             pt.nn.ELU(),
             pt.nn.Linear(3*Ns, 3*Ns),
         )
-        
-        # P aggregation
-        #self.pa = pt.nn.Conv2d(in_channels=3, out_channels=1, kernel_size=1)
-        # P_nn aggregation
-        #self.pnna = pt.nn.Conv2d(in_channels=3*n, out_channels=n, kernel_size=1)
 
         # scalar projection model
         self.qpm = pt.nn.Sequential(
