@@ -20,7 +20,7 @@ conda env create -f env.yml
 4. How to calculate the geo-dists for geoloss function
 5. Train the model
 
-## _**Inference**_
+## _**Running inference**_
 
 ## _**Cite**_
 Accompanying paper
