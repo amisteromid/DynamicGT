@@ -5,4 +5,10 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 ## _**Installation**_
 
 
-## _**Dataset Generation**_
+## _**Dataset generation**_
+
+
+## _**Training the model**_
+
+
+## _**Inference**_
