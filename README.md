@@ -21,3 +21,6 @@ conda env create -f env.yml
 5. Train the model
 
 ## _**Inference**_
+
+## _**Cite**_
+Accompanying paper
