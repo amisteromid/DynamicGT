@@ -5,7 +5,10 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 ## _**Installation**_
 1. Clone github repo
 2. yml file to install the environment
-
+```bash
+git clone <>
+conda env create -f env.yml
+```
 ## _**Training the model**_
 1. Zenodo link to clusters of MD and Aflow
 2. How to run build_dataset.py with arguments and make h5 file
