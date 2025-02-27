@@ -9,7 +9,10 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 ## _**Training the model**_
 1. Zenodo link to clusters of MD and Aflow
 2. How to run build_dataset.py with arguments and make h5 file
-3. How to calculate the geo-dists for geoloss function
-4. Train the model
+   The parameters of the script are:
+- ``-i``: path to the folder containing structures.
+- ``-o``: path/name of the h5 file to be saved.
+4. How to calculate the geo-dists for geoloss function
+5. Train the model
 
 ## _**Inference**_
