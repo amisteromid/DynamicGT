@@ -2,6 +2,10 @@
 DynamicGT: a dynamic-aware geometric transformer model to predict protein binding interfaces in flexible and disordered regions
 ### Workflow explanations and figure+gif
 
+<p align="center">
+    <img src="Arch.png" width="600"/>
+</p>
+
 ## **Installation**
 1. Clone github repo
 2. yml file to install the environment
