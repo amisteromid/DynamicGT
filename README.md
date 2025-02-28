@@ -7,8 +7,6 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 </p>
 
 ## **Installation**
-1. Clone github repo
-2. yml file to install the environment
 ```bash
 git clone <>
 conda env create -f env.yml
@@ -21,7 +19,7 @@ conda env create -f env.yml
    - ``--output``: path/name of the h5 file to be saved.
    - ``--min-sequence-length``:  Minimum sequence length to process.
    - ``--num--workers``:  number of worker processes for data loading.
-4. How to calculate the geo-dists for geoloss function
+4. How to calculate the geo-dists for geoloss function (if Basic focalloss is not used)
 5. Train the model
 
 ## **Running inference**
