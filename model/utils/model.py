@@ -5,7 +5,6 @@ from utils.model_operations import StateUpdateLayer, StatePoolLayer, unpack_stat
 class Model(pt.nn.Module):
     def __init__(self, config):
         super(Model, self).__init__()
-        # features encoding models for structures and library
         self.em = pt.nn.Sequential(
             pt.nn.Linear(config['em']['N0'], config['em']['N1']),
             pt.nn.ELU(),
@@ -29,7 +28,7 @@ class Model(pt.nn.Module):
         )
 
     def forward(self, onehot_seq, rmsf1, rmsf2, rsa, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, mapping):
-        # encode features
+        # concat and encode node features
         normalized_rsa = normalize_sasa(rsa).to(rsa.device)
         q0 = pt.cat((onehot_seq, normalized_rsa, rmsf1, rmsf2),dim=1).float() #30+3
         q = self.em.forward(q0)
