@@ -25,7 +25,6 @@ std_elements = np.array([
 list_modified_aa = ['ABU', 'ACE', 'AIB', 'ALA  ', 'ARG  ', 'ARGN', 'ASN', 'ASN1  ', 'ASP', 'ASP1', 'ASPH', 'ASPP', 'ASH ', 'CT3 ', 'CYS ', 'CYS1', 'CYS2 ', 'CYSH ', 'DALA', 'GLN  ', 'GLU  ', 'GLUH ', 'GLUP', 'GLH', 'GLY', 'HIS ', 'HIS1', 'HISA ', 'HISB ', 'HISH', 'HISD', 'HISE', 'HISP ', 'HSD', 'HSE', 'HSP', 'HYP  ', 'ILE  ', 'LEU  ', 'LSN', 'LYS  ', 'LYSH ', 'MELEU', 'MET  ', 'MEVAL', 'NAC  ', 'NME ', 'NHE', 'NH2', 'PHE  ', 'PHEH ', 'PHEU ', 'PHL ', 'PRO  ', 'SER  ', 'THR  ', 'TRP  ', 'TRPH ', 'TRPU ', 'TYR  ', 'TYRH ', 'TYRU ', 'TYS ', 'VAL  ', 'PGLU', 'HID', 'HIE', 'HIP', 'LYP', 'LYN', 'CYN', 'CYM', 'CYX', 'DAB', 'ORN', 'HYP', 'NALA', 'NGLY', 'NSER', 'NTHR', 'NLEU', 'NILE', 'NVAL', 'NASN', 'NGLN', 'NARG', 'NHID', 'NHIE', 'NHIP', 'NHISD', 'NHISE', 'NHISH', 'NTRP', 'NPHE', 'NTYR', 'NGLU', 'NASP', 'NLYS', 'NORN', 'NDAB', 'NLYSN', 'NPRO', 'NHYP', 'NCYS', 'NCYS2', 'NMET', 'NASPH', 'NGLUH', 'CALA', 'CGLY', 'CSER', 'CTHR', 'CLEU', 'CILE', 'CVAL', 'CASN', 'CGLN', 'CARG', 'CHID', 'CHIE', 'CHIP', 'CHISD', 'CHISE', 'CHISH', 'CTRP', 'CPHE', 'CTYR', 'CGLU', 'CASP', 'CLYS', 'CORN', 'CDAB', 'CLYSN', 'CPRO', 'CHYP', 'CCYS', 'CCYS2', 'CMET', 'CASPH', 'CGLUH']
 
 def split_nmr_pdb(input_pdb_file):
-    # Read the input PDB file
     structure = gemmi.read_structure(input_pdb_file)
 
     chains_models = {}
@@ -37,16 +36,12 @@ def split_nmr_pdb(input_pdb_file):
                 chain_id = chain.name
                 if chain_id not in chains_models:
                     chains_models[chain_id] = []
-
-                # Append the model to the chain's list of models
                 chains_models[chain_id].append(chain)
     return chains_models
     
 def make_pdb(chains):
-    # Initialize a new structure
     structure = gemmi.Structure()
 
-    # Check if the input is a single chain or a list of chains
     if isinstance(chains, gemmi.Chain):
         # Single chain, single model
         model = gemmi.Model('model_1')
@@ -74,24 +69,16 @@ def make_pdb(chains):
     # Generate the PDB string of the structure
     pdb_string = structure.make_pdb_string()
 
-    # Create a temporary file and write the PDB string to it
     temp_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.pdb')
     temp_file.write(pdb_string)
-    temp_file.flush()  # Ensure all data is written to the file
-    temp_file.seek(0)  # Reset file pointer for reading
+    temp_file.flush()
+    temp_file.seek(0) 
 
-    # Return the path to the temporary file
     return temp_file.name
 
 def fill_nan_with_neighbors(sasa_array):
-    # Convert the NumPy array to a pandas Series for easier handling of NaN filling
     series = pd.Series(sasa_array)
-    
-    # Interpolate the NaN values. Method 'linear' will use linear interpolation based on index,
-    # which essentially considers neighbors.
     series_interpolated = series.interpolate(method='linear')
-
-    # Fill NaN at the start or the end if they still exist after interpolation
     series_filled = series_interpolated.bfill().ffill()
     return series_filled.to_numpy()
     
@@ -181,7 +168,6 @@ def read_pdb(pdb_filepath):
                         atom_types_tmp.append(atom.element.strip())
                         atom_coords.append([atom.coord[0], atom.coord[1], atom.coord[2]])
         assert len(seq) == len(aa_map_tmp), "seq doesn't match with aa_map"
-        # make seq without repetition 
         index_set = set()
         result = []
         for char, index in zip(seq, aa_map_tmp):
@@ -210,7 +196,6 @@ def read_pdb(pdb_filepath):
 class StructuresDataset(pt.utils.data.Dataset):
     def __init__(self, structures_folder):
         super(StructuresDataset).__init__()
-        # store dataset filepath
         self.structures_folder = structures_folder
 
     def __len__(self):
@@ -218,25 +203,21 @@ class StructuresDataset(pt.utils.data.Dataset):
 
     def __getitem__(self, i):
         threshold = 0.04
-        # find pdb filepath
         pdb_parent = self.structures_folder[i]
         
         # Split by chain
         pdb_chains = split_nmr_pdb(pdb_parent)
         pdb_id, chain_id_og = parse_pdb_info(pdb_parent)
-        #print (pdb_parent, chain_id_og)
         
         assert len(pdb_chains)==1, "more than one chain exist"
         
         features_dic = {}
-        # Get Features
         models = list(pdb_chains.values())[0]
         pdb_file = make_pdb(models)
         aa_map, seq, atom_type, atoms_xyz = read_pdb(pdb_file)
         seq=''.join(seq)
         nan_positions = np.argwhere(np.isnan(atoms_xyz))
         assert nan_positions.size == 0, f"NaN values found in {pdb_parent} at positions: {nan_positions}\n{backbone_xyz[0][nan_positions[0][1]]}\n{backbone_xyz[0][nan_positions[0][1]-1]}"
-        # Get features
         mean_xyz = mean_coordinates(atoms_xyz)
         R, D= extract_topology(mean_xyz)
         # Indices of nearest neighbors
@@ -265,17 +246,14 @@ class StructuresDataset(pt.utils.data.Dataset):
             assert len(labeled_seqs[each_chain]) == len(sasa_dic_unbound[each_chain]), "labeled seq does not match with labels"
             original_labels = np.array([1 if y-x >= threshold else 0 for x, y in zip(sasa_dic_bound[each_chain], sasa_dic_unbound[each_chain])])
             
-            # Map them
+            # # Map labels on features indices
             alignment = pairwise2.align.globalms(unlabeled_seqs[each_chain], labeled_seqs[each_chain], 2, -2, -7, -2)[0]
             unlabeled_seq_aligned, labeled_seq_aligned = alignment[0], alignment[1]
-            #print (unlabeled_seq_aligned)
-            #print (labeled_seq_aligned)
             
             # Initialize the mapped labels and SASA arrays
             mapped_labels = []
             mapped_sasa = []
-            l_index = 0
-            # Map labels on features indices 
+            l_index = 0 
             for u_residue, l_residue in zip(unlabeled_seq_aligned, labeled_seq_aligned):
                 if u_residue == '-':
             	    l_index += 1
@@ -290,7 +268,6 @@ class StructuresDataset(pt.utils.data.Dataset):
                     mapped_sasa.append(sasa_dic_unbound[each_chain][l_index])
                     l_index += 1
                     
-            #if unlabeled_seqs[each_chain] != labeled_seqs[each_chain]: print (pdb_parent+'\n'+unlabeled_seq_aligned+'\n'+labeled_seq_aligned)
             mapped_sasa = fill_nan_with_neighbors(np.array(mapped_sasa))
             mapped_labels = np.array(mapped_labels)
             
@@ -298,11 +275,8 @@ class StructuresDataset(pt.utils.data.Dataset):
             aa_map = np.array(features_dic[each_chain][0])
             mapped_sasa = np.array(mapped_sasa)[aa_map - 1]
             
-            #save
-            mapped_sasa_dic_unbound[each_chain] = mapped_sasa # residue-level values mapped to atom-level
+            mapped_sasa_dic_unbound[each_chain] = mapped_sasa 
             mapped_labels_dic[each_chain] = mapped_labels
-            #for i,n in enumerate(mapped_labels_dic['A']): if n==1: print (i+1,end='+')
-        #print (pdb_parent, atoms_xyz.shape)
         return features_dic, mapped_sasa_dic_unbound, mapped_labels_dic, pdb_parent.split('/')[-1]
 	
 			
