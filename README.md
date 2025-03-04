@@ -23,6 +23,6 @@ conda env create -f env.yml
 5. Train the model
 
 ## **Running inference**
-
+Download the model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
 ## **Citation**
 Accompanying paper
