@@ -242,11 +242,11 @@ class StateUpdate(pt.nn.Module):
         QKq_masked = QKq * mask.unsqueeze(1)
         QKp_masked = QKp * mask.unsqueeze(1).repeat(1, 1, 3).reshape(mask.shape[0],1,-1)
         
-        # queries and keys collapse
+        # apply softmax
         Mq = pt.nn.functional.softmax(QKq_masked, dim=2)  # [N, Nh, n]
         Mp = pt.nn.functional.softmax(QKp_masked, dim=2)  # [N, Nh, 3*n]
 
-        # scalar state attention mask and values collapse
+        # attention mask and values collapse
         Zq = pt.matmul(Mq, V[:,0]).view(N, self.Nh*self.Ns)  # [N, Nh*S]
         Zp_r = pt.matmul(Mp.unsqueeze(1), Vp_r).view(N, 3, self.Nh*self.Ns)  # [N, 3, Nh*S]
         Zp_motion = pt.matmul(Mp.unsqueeze(1), Vp_motion).view(N, 3, self.Nh*self.Ns)  # [N, 3, Nh*S]
