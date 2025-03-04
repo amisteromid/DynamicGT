@@ -108,3 +108,4 @@ class Dataset(pt.utils.data.Dataset):
             CP_nn = pt.from_numpy(np.array(hgrp_f['CP_nn']))
             dists = pt.from_numpy(np.array(hgrp_l['dist']))
             y = pt.from_numpy(np.array(hgrp_l['label']))
+        return onehot_seq, rmsf1, rmsf2, rsa, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, mapping, y, dists
