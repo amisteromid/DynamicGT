@@ -3,7 +3,7 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 ### Workflow explanations and figure+gif
 
 
-<p align="center"> <img src="Arch.png" alt="DynamicGT Architecture" width="600"/> </p> <p align="center"> <img src="gif.gif" alt="DynamicGT Workflow" width="600"/> </p>
+<p align="center"> <img src="Arch.png" alt="DynamicGT Architecture" width="600"/> </p> <p align="center"> <img src="states.gif" alt="DynamicGT Workflow" width="600"/> </p>
 
 ## **Installation**
 To set up the project, follow these steps:
