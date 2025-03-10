@@ -4,11 +4,12 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 
 
 <p align="center"> <img src="Arch.png" alt="DynamicGT Architecture" width="600"/> </p> <p align="center"> <img src="gif.gif" alt="DynamicGT Workflow" width="600"/> </p>
+
 ## **Installation**
 To set up the project, follow these steps:
+
 ```bash
 git clone https://github.com/amisteromid/DynamicGT.git
-
 conda env create -f env.yml
 ```
 Ensure you have Git and Conda installed before proceeding.
