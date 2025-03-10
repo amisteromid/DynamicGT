@@ -31,6 +31,7 @@ python3 build_dataset.py --input /path/to/structures --output dataset.h5 --min-s
 4. Calculate Geo-Distances (Optional)
 If not using the basic focal loss function, compute geo-distances for the geo-loss function. Refer to the script comments in loss_data folder for details.
 5. Train the model
+Execute the training script with your prepared .h5 file.
 
 ## **Running inference**
 Download the model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
