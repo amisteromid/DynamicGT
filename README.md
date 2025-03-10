@@ -34,7 +34,9 @@ If not using the basic focal loss function, compute geo-distances for the geo-lo
 Execute the training script with your prepared .h5 file.
 
 ## **Running inference**
-Download the model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
-put input structures in input_structures folder and use predict_with_model notebook to use the model. visualization can also be done using p_to_bfactor with blue to gray to red spectrum showing predicted probablity of 0 to 1.
+To perform inference with a pre-trained model:
+1. Obtain the pre-trained model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
+2. Place your input structures in the input_structures/ folder.
+use predict_with_model notebook to use the model. visualization can also be done using p_to_bfactor with blue to gray to red spectrum showing predicted probablity of 0 to 1.
 ## **Citation**
 Accompanying paper
