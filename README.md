@@ -37,6 +37,7 @@ Execute the training script with your prepared .h5 file.
 To perform inference with a pre-trained model:
 1. Obtain the pre-trained model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
 2. Place your input structures in the input_structures/ folder.
-use predict_with_model notebook to use the model. visualization can also be done using p_to_bfactor with blue to gray to red spectrum showing predicted probablity of 0 to 1.
+3. Use the predict_with_model.ipynb Jupyter notebook to load the model and generate predictions.
+4. Visualize predictions using the p_to_bfactor utility, which maps probabilities (0 to 1) to a blue-gray-red color spectrum for intuitive interpretation.
 ## **Citation**
 Accompanying paper
