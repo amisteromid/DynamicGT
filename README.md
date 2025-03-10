@@ -26,9 +26,10 @@ https://doi.org/10.5281/zenodo.14833854
    - ``--min-sequence-length``:  Minimum sequence length to process (integer).
    - ``--num--workers``:  number of worker processes for data loading (integer).
 ```bash
-python build_dataset.py --input /path/to/structures --output dataset.h5 --min-sequence-length 10 --num-workers 4
+python3 build_dataset.py --input /path/to/structures --output dataset.h5 --min-sequence-length 10 --num-workers 4
 ```
-4. Calculate the geo-dists for geoloss function (if Basic focalloss is not used)
+4. Calculate Geo-Distances (Optional)
+If not using the basic focal loss function, compute geo-distances for the geo-loss function. Refer to the script comments in geoloss folder for details.
 5. Train the model
 
 ## **Running inference**
