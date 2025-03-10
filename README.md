@@ -7,22 +7,32 @@ DynamicGT: a dynamic-aware geometric transformer model to predict protein bindin
 </p>
 
 ## **Installation**
+To set up the project, follow these steps:
 ```bash
+# Clone the repository
 git clone https://github.com/amisteromid/DynamicGT.git
+
+# Create the Conda environment using the provided env.yml file
 conda env create -f env.yml
 ```
+Ensure you have Git and Conda installed before proceeding.
 ## **Training the model**
-1. Zenodo link to clusters of MD and AFlow: https://doi.org/10.5281/zenodo.14833854
-2. Run build_dataset.py with arguments and make h5 file
-   The parameters of the script are:
+Follow these steps to train the model:
+1. Access the clusters of MD and AFlow data from Zenodo:
+https://doi.org/10.5281/zenodo.14833854
+2. Run the build_dataset.py script to generate an HDF5 (.h5) file. Use the following parameters:
    - ``--input``: path to the folder containing structures.
-   - ``--output``: path/name of the h5 file to be saved.
-   - ``--min-sequence-length``:  Minimum sequence length to process.
-   - ``--num--workers``:  number of worker processes for data loading.
+   - ``--output``: Path and name of the output .h5 file.
+   - ``--min-sequence-length``:  Minimum sequence length to process (integer).
+   - ``--num--workers``:  number of worker processes for data loading (integer).
+```bash
+python build_dataset.py --input /path/to/structures --output dataset.h5 --min-sequence-length 10 --num-workers 4
+```
 4. Calculate the geo-dists for geoloss function (if Basic focalloss is not used)
 5. Train the model
 
 ## **Running inference**
 Download the model from [Google Drive](https://drive.google.com/file/d/1puehNHhu6JSjH-ZZetdNaVo6ftU-Oj1x/view?usp=sharing)
+put input structures in input_structures folder and use predict_with_model notebook to use the model. visualization can also be done using p_to_bfactor with blue to gray to red spectrum showing predicted probablity of 0 to 1.
 ## **Citation**
 Accompanying paper
