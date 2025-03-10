@@ -29,7 +29,7 @@ https://doi.org/10.5281/zenodo.14833854
 python3 build_dataset.py --input /path/to/structures --output dataset.h5 --min-sequence-length 10 --num-workers 4
 ```
 4. Calculate Geo-Distances (Optional)
-If not using the basic focal loss function, compute geo-distances for the geo-loss function. Refer to the script comments in geoloss folder for details.
+If not using the basic focal loss function, compute geo-distances for the geo-loss function. Refer to the script comments in loss_data folder for details.
 5. Train the model
 
 ## **Running inference**
