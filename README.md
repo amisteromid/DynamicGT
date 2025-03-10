@@ -1,7 +1,7 @@
 # DynamicGT
 DynamicGT: a dynamic-aware geometric transformer model to predict protein binding interfaces in flexible and disordered regions
-### Workflow explanations and figure+gif
-
+### Workflow explanations
+The following figure and animation illustrate the architecture and workflow of the DynamicGT pipeline:
 
 <p align="center"> <img src="Arch.png" alt="DynamicGT Architecture" width="600"/> </p> <p align="center"> <img src="states.gif" alt="DynamicGT Workflow" width="600"/> </p>
 
