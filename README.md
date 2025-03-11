@@ -36,5 +36,37 @@ To perform inference with a pre-trained model:
 2. Place your input structures in the input_structures/ folder.
 3. Use the predict_with_model.ipynb Jupyter notebook to load the model and generate predictions.
 4. Visualize predictions using the p_to_bfactor utility, which maps probabilities (0 to 1) to a blue-gray-red color spectrum for intuitive interpretation.
+
+## **License and Attribution
+This tool is licensed under the CC BY-NC-SA 4.0 license.
+
+We acknowledge and appreciate the contributions of the following publicly available tools, which have inspired our work and provided code that we have inspired from or adapted into our implementation:
+
+PeSTo – Protein Site Prediction
+GitHub: https://github.com/LBM-EPFL/PeSTo/tree/main
+Paper: https://doi.org/10.1038/s41467-023-37701-8
+License: CC BY-NC-SA 4.0
+
+CoGNN – Cooperative Graph Neural Networks for Protein Analysis
+GitHub: https://github.com/benfinkelshtein/CoGNN
+Paper: https://doi.org/10.48550/arXiv.2310.01267
+License: MIT License
+
+If you use this tool in your research, please consider citing these works alongside our own, as they have significantly contributed to the technical development of this project.
+
+
 ## **Citation**
-Accompanying paper
+```bibtex
+@article {Mokhtari2025.03.04.641377,
+	author = {Mokhtari, Omid and Grudinin, Sergei and Karami, Yasaman and Khakzad, Hamed},
+	title = {DynamicGT: a dynamic-aware geometric transformer model to predict protein binding interfaces in flexible and disordered regions},
+	elocation-id = {2025.03.04.641377},
+	year = {2025},
+	doi = {10.1101/2025.03.04.641377},
+	publisher = {Cold Spring Harbor Laboratory},
+	abstract = {Protein-protein interactions are fundamental to cellular processes, yet existing deep learning approaches for binding site prediction often rely on static structures, limiting their performance when disordered or flexible regions are involved. To address this, we introduce a novel dynamic-aware method for predicting protein-protein binding sites by integrating conformational dynamics into a cooperative graph neural network (Co-GNN) architecture with a geometric transformer (GT). Our approach uniquely encodes dynamic features at both the node (atom) and edge (interaction) levels, and consider both bound and unbound states to enhance model generalization. The dynamic regulation of message passing between core and surface residues optimizes the identification of critical interactions for efficient information transfer. We trained our model on an extensive overall 1-ms molecular dynamics simulations dataset across multiple benchmarks as the gold standard and further extended it by adding generated conformations by AlphaFlow. Comprehensive evaluation on diverse independent datasets containing disordered, transient, and unbound structures showed that incorporating dynamic features in cooperative architecture significantly boosts prediction accuracy when flexibility matters, and requires substantially less amount of data than leading static models.Competing Interest StatementThe authors have declared no competing interest.},
+	URL = {https://www.biorxiv.org/content/early/2025/03/10/2025.03.04.641377},
+	eprint = {https://www.biorxiv.org/content/early/2025/03/10/2025.03.04.641377.full.pdf},
+	journal = {bioRxiv}
+}
+```
