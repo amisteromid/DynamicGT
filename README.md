@@ -37,9 +37,10 @@ To perform inference with a pre-trained model:
 3. Use the predict_with_model.ipynb Jupyter notebook to load the model and generate predictions.
 4. Visualize predictions using the p_to_bfactor utility, which maps probabilities (0 to 1) to a blue-gray-red color spectrum for intuitive interpretation.
 
-## **License and Attribution**
+## **License**
 This tool is licensed under the CC BY-NC-SA 4.0 license.
 
+## **Acknowledgement**
 We acknowledge and appreciate the contributions of the following publicly available tools, which have inspired our work and provided code that we have inspired from or adapted into our implementation:
 
 PeSTo – Protein Site Prediction<br>
@@ -51,9 +52,6 @@ CoGNN – Cooperative Graph Neural Networks for Protein Analysis<br>
 GitHub: https://github.com/benfinkelshtein/CoGNN<br>
 Paper: https://doi.org/10.48550/arXiv.2310.01267<br>
 License: MIT License<br>
-
-If you use this tool in your research, please consider citing these works alongside our own, as they have significantly contributed to the technical development of this project.
-
 
 ## **Citation**
 ```bibtex
