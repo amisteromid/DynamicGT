@@ -1,9 +1,23 @@
 # DynamicGT
 DynamicGT: a dynamic-aware geometric transformer model to predict protein binding interfaces in flexible and disordered regions
-### Workflow Explanations
-The following figure and animation illustrate the architecture and workflow of the DynamicGT pipeline:
 
-<table align="center"> <tr> <td align="center"> <img src="Arch.png" alt="DynamicGT Architecture" width="400"/> </td> <td align="center"> <img src="states.gif" alt="DynamicGT Workflow" width="400"/> </td> </tr> </table>
+[![bioRxiv shield](https://img.shields.io/badge/bioRxiv-1709.01233-green.svg?style=flat)](https://www.biorxiv.org/content/10.1101/2025.03.04.641377v1)
+
+![DynamicGT concept movie](https://raw.githubusercontent.com/amisteromid/DynamicGT/blob/main/states.gif)
+
+## Table of Contents: 
+- [The workflow] (#The workflow)
+- [Installation](#Installation)
+- [Training the model](#Training the model)
+- [Running inference](#Running inference)
+- [License](#License)
+- [Acknowledgement](#Acknowledgement)
+- [Citation](#Citation)
+
+## The workflow
+The following figure and animation illustrate the architecture and workflow of the DynamicGT pipeline. DynamicGT processes the protein conformational ensemble derived from MD simulations, NMR, and AlphaFlow. The architecture employs cooperative GNNs, where the first two GNNs determine the actions of each atom, eectively constraining message passing between surface and core residues. With each layer of the architecture, the number of residues increases to emphasize closer neighbors. Subsequently, a geometric transformer updates the atomic states. The final block pools atomic information to residues and decodes this into predicted probabilities. (b) RMSF and DE are dynamic features associated with nodes, while motion V, motion s, and CP are defined for edges. RSA is calculated by averaging across multiple conformations. Additionally, displacement vectors and distances are defined to capture spatial and geometrical features of the protein structure. (c) Visualization of the broadcasting rate (red) and listening rate (blue) of surface residues, illustrating their relationship with the proximity of each residue to the interface.
+
+![DynamicGT concept workflow](https://raw.githubusercontent.com/amisteromid/DynamicGT/blob/main/Arch.png)
 
 ## **Installation**
 To set up the project, follow these steps:
