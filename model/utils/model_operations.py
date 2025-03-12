@@ -1,3 +1,10 @@
+"""
+The baseline geometric transfomer model is adapted from PeSTo (Protein Structure Transformer).
+Developed by the PeSTo authors.
+Original License: CC BY-NC-SA 4.0
+Source: https://github.com/LBM-EPFL/PeSTo/tree/main
+"""
+
 import torch as pt
 from torch.utils.checkpoint import checkpoint
 import subprocess

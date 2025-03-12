@@ -1,3 +1,10 @@
+"""
+This code is adapted from PeSTo (Protein Structure Transformer).
+Developed by the PeSTo authors.
+Original License: CC BY-NC-SA 4.0
+Source: https://github.com/LBM-EPFL/PeSTo/tree/main
+"""
+
 import numpy as np
 import torch as pt
 from scipy.stats import pearsonr

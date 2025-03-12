@@ -1,3 +1,10 @@
+"""
+This code is adapted from PeSTo (Protein Structure Transformer).
+Developed by the PeSTo authors.
+Original License: CC BY-NC-SA 4.0
+Source: https://github.com/LBM-EPFL/PeSTo/tree/main
+"""
+
 import torch as pt
 from utils.model_operations import StateUpdateLayer, StatePoolLayer, unpack_state_features, normalize_sasa
 
