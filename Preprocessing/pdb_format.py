@@ -1,3 +1,10 @@
+"""
+pdb_format.py: Helper function to process PDB files 
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import os
 import re
 

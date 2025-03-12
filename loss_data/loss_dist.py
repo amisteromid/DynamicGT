@@ -1,3 +1,10 @@
+"""
+loss_dist.py: Calculating geometric distances for the loss function
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import subprocess
 import os
 import numpy as np

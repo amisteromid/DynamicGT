@@ -1,3 +1,10 @@
+"""
+make_labels.py: Compute and extract labels 
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import requests
 import os
 import gemmi

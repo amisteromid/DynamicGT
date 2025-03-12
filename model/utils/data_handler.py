@@ -1,3 +1,10 @@
+"""
+data_handler.py: Building dataloaders
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import torch as pt
 import h5py
 import numpy as np

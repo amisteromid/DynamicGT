@@ -1,3 +1,10 @@
+"""
+extract_loss_dist.py: Calculating distances for loss function
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import h5py
 import pickle
 from loss_dist import get_dist

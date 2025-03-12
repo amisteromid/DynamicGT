@@ -1,3 +1,10 @@
+"""
+build_dataset.py: Building the dataset 
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import numpy as np
 import torch as pt
 from tqdm import tqdm

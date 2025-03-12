@@ -1,3 +1,10 @@
+"""
+merge_dist_with_h5.py: Merging distance into dataset
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import h5py
 import pickle
 import numpy as np

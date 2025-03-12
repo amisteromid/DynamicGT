@@ -1,3 +1,10 @@
+"""
+feature_extraction.py: Compute and extract dynamic features 
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
+"""
+
 import numpy as np
 from scipy.stats import entropy
     
