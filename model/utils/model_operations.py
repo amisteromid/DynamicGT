@@ -333,13 +333,28 @@ class StateUpdateLayer(pt.nn.Module):
 
     def forward(self, z):
         q, p_r, p_motion, nn_topk, D_topk, R_topk, motion_v_nn, motion_s_nn, CP_nn, ntype,_,_ = z
-        ids_nn = nn_topk[:,self.m_nn]
+        ids_nn = nn_topk[:,self.m_nn]to(pt.int64)
         
-        # action
         #print_free_gpu_memory()
-        ids_nn = ids_nn.int()
-        in_logits = self.in_au.forward(q, p_r, p_motion, q[ids_nn], p_r[ids_nn], p_motion[ids_nn], D_topk[:,self.m_nn], R_topk[:,self.m_nn], motion_v_nn[:,self.m_nn], motion_s_nn[:,self.m_nn], CP_nn[:,self.m_nn])
-        out_logits = self.out_au.forward(q, p_r, p_motion, q[ids_nn], p_r[ids_nn], p_motion[ids_nn], D_topk[:,self.m_nn], R_topk[:,self.m_nn], motion_v_nn[:,self.m_nn], motion_s_nn[:,self.m_nn], CP_nn[:,self.m_nn])
+        # Compute action update logits
+        in_logits = self.in_au(
+            q, p_r, p_motion, 
+            q[ids_nn], p_r[ids_nn], p_motion[ids_nn], 
+            D_topk[:, self.neighbor_indices], 
+            R_topk[:, self.neighbor_indices], 
+            motion_v_nn[:, self.neighbor_indices], 
+            motion_s_nn[:, self.neighbor_indices], 
+            CP_nn[:, self.neighbor_indices]
+        )
+        out_logits = self.out_au(
+            q, p_r, p_motion, 
+            q[ids_nn], p_r[ids_nn], p_motion[ids_nn], 
+            D_topk[:, self.neighbor_indices], 
+            R_topk[:, self.neighbor_indices], 
+            motion_v_nn[:, self.neighbor_indices], 
+            motion_s_nn[:, self.neighbor_indices], 
+            CP_nn[:, self.neighbor_indices]
+        )
         
         # make the mask matrix
         in_column = in_logits[:, 0].unsqueeze(1)
@@ -349,14 +364,26 @@ class StateUpdateLayer(pt.nn.Module):
         mask[(mask == 0) & (ntype_mask == 1)] = 1 # neutralizing mask for intra-type nodes
 
         # update q and ps with checkpoint
-        q = q.requires_grad_()
-        p_r, p_motion = p_r.requires_grad_(), p_motion.requires_grad_()
-        q, p_r, p_motion = checkpoint(self.su.forward, q, p_r, p_motion, q[ids_nn], p_r[ids_nn], p_motion[ids_nn], D_topk[:,self.m_nn], R_topk[:,self.m_nn], motion_v_nn[:,self.m_nn], motion_s_nn[:,self.m_nn], CP_nn[:,self.m_nn], mask[:,self.m_nn], use_reentrant=False)
-
-        # sink
-        q[0] = q[0] * 0.0
-        p_r[0] = p_r[0] * 0.0
-        p_motion[0] = p_motion[0] * 0.0
+        q = q.detach().requires_grad_()
+        p_r = p_r.detach().requires_grad_()
+        p_motion = p_motion.detach().requires_grad_()
+        q, p_r, p_motion = checkpoint(
+            self.su,
+            q, p_r, p_motion,
+            q[ids_nn], p_r[ids_nn], p_motion[ids_nn],
+            D_topk[:, self.neighbor_indices],
+            R_topk[:, self.neighbor_indices],
+            motion_v_nn[:, self.neighbor_indices],
+            motion_s_nn[:, self.neighbor_indices],
+            CP_nn[:, self.neighbor_indices],
+            mask[:, self.neighbor_indices],
+            use_reentrant=False
+        )
+        # Zero out the first node's states
+        with pt.no_grad():
+            q[0].zero_()
+            p_r[0].zero_()
+            p_motion[0].zero_()
 
         return q, p_r, p_motion, nn_topk, D_topk, R_topk, motion_v_nn, motion_s_nn, CP_nn, ntype, in_column, out_column
         
