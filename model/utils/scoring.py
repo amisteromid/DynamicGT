@@ -121,7 +121,7 @@ def nanmean(x: pt.Tensor) -> pt.Tensor:
     return pt.nansum(x, dim=0) / pt.clamp(valid_count, min=1)  # Avoid division by zero
 
 
-def compute_classification_metrics(y_true: pt.Tensor, y_prob: pt.Tensor) -> pt.Tensor:
+def bc_scoring(y_true: pt.Tensor, y_prob: pt.Tensor) -> pt.Tensor:
     # Threshold probabilities to get binary predictions
     y_pred = (y_prob >= 0.5).float()
 
