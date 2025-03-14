@@ -1,3 +1,20 @@
+config_runtime = {
+    'output_dir': 'save',
+    'reload': True,
+    'device': 'cuda',
+    'num_epochs': 100,
+    'batch_size': 1,
+    'log_step': 256,
+    'eval_step': 256,
+    'eval_size': 256,
+    'learning_rate': 1e-5,
+    'loss_alpha': 0.7,
+    'loss_beta': 2,
+    'loss_gamma': 2,
+    'patience': 60,
+    'rsa_thr': 0.16,
+}
+
 config_data = {
     'dataset_filepath': "/home/omokhtari/public/ppi_model/data/db.h5",
     'train_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting/train.txt',
@@ -47,22 +64,4 @@ config_model = {
     ],
     "spl": {'N0': 32, 'N1': 32, 'Nh': 4},
     "dm": {'N0': 32, 'N1': 32, 'N2': 1}
-}
-
-
-config_runtime = {
-    'output_dir': 'save',
-    'reload': True,
-    'device': 'cuda',
-    'num_epochs': 100,
-    'batch_size': 1,
-    'log_step': 256,
-    'eval_step': 256,
-    'eval_size': 256,
-    'learning_rate': 1e-5,
-    'loss_alpha': 0.7,
-    'loss_beta': 2,
-    'loss_gamma': 2,
-    'patience': 60,
-    'rsa_thr': 0.16,
 }
