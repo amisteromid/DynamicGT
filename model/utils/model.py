@@ -8,6 +8,7 @@ Copyright (c) original source: https://github.com/LBM-EPFL/PeSTo/tree/main
 import torch as pt
 from torch.utils.checkpoint import checkpoint
 from utils.configs import config_runtime
+from model_extras import normalize_sasa, ActionUpdate, print_free_gpu_memory
 
                           
 def unpack_state_features(q, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, rsa):
