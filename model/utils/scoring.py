@@ -14,7 +14,6 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 bc_score_names = ['acc','ppv','npv','tpr','tnr','mcc','auc','std']
 
 
-@pt.jit.script
 def binary_classification_counts(y: pt.Tensor, y_pred: pt.Tensor) -> Tuple[pt.Tensor, pt.Tensor, pt.Tensor, pt.Tensor, pt.Tensor, pt.Tensor]:
     true_positives = pt.sum(y_pred * y, dim=0)
     true_negatives = pt.sum((1.0 - y_pred) * (1.0 - y), dim=0)
@@ -27,12 +26,10 @@ def binary_classification_counts(y: pt.Tensor, y_pred: pt.Tensor) -> Tuple[pt.Te
     return true_positives, true_negatives, false_positives, false_negatives, positives, negatives
 
 
-@pt.jit.script
 def accuracy(TP: pt.Tensor, TN: pt.Tensor, FP: pt.Tensor, FN: pt.Tensor) -> pt.Tensor:
     return (TP + TN) / (TP + TN + FP + FN)
 
 
-@pt.jit.script
 def precision(TP: pt.Tensor, FP: pt.Tensor, P: pt.Tensor) -> pt.Tensor:
     denominator = TP + FP # Avoid division by zero
     valid_mask = denominator > 0
@@ -41,8 +38,6 @@ def precision(TP: pt.Tensor, FP: pt.Tensor, P: pt.Tensor) -> pt.Tensor:
     result[~(P > 0)] = float('nan')
     return result
 
-
-@pt.jit.script
 def negative_predictive_value(TN: pt.Tensor, FN: pt.Tensor, N: pt.Tensor) -> pt.Tensor:
     denominator = TN + FN
     valid_mask = denominator > 0
@@ -52,7 +47,6 @@ def negative_predictive_value(TN: pt.Tensor, FN: pt.Tensor, N: pt.Tensor) -> pt.
     return result
 
 
-@pt.jit.script
 def recall(TP: pt.Tensor, FN: pt.Tensor) -> pt.Tensor:
     denominator = TP + FN
     valid_mask = denominator > 0
@@ -61,7 +55,6 @@ def recall(TP: pt.Tensor, FN: pt.Tensor) -> pt.Tensor:
     return result
 
 
-@pt.jit.script
 def specificity(TN: pt.Tensor, FP: pt.Tensor) -> pt.Tensor:
     denominator = TN + FP
     valid_mask = denominator > 0
@@ -70,7 +63,6 @@ def specificity(TN: pt.Tensor, FP: pt.Tensor) -> pt.Tensor:
     return result
 
 
-@pt.jit.script
 def matthews_correlation_coefficient(TP: pt.Tensor, TN: pt.Tensor, FP: pt.Tensor, FN: pt.Tensor) -> pt.Tensor:
     numerator = (TP * TN) - (FP * FN)
     denominator = pt.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
@@ -114,8 +106,6 @@ def precision_recall_auc(y: pt.Tensor, y_prob: pt.Tensor, P: pt.Tensor, N: pt.Te
             
     return result
 
-
-@pt.jit.script
 def nanmean(x: pt.Tensor) -> pt.Tensor:
     valid_count = pt.sum(~pt.isnan(x), dim=0)
     return pt.nansum(x, dim=0) / pt.clamp(valid_count, min=1)  # Avoid division by zero
