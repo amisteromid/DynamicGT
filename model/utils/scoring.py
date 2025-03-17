@@ -1,8 +1,8 @@
 """
-This code is adapted from PeSTo (Protein Structure Transformer).
-Developed by the PeSTo authors, LBM, EPFL.
-Original License: CC BY-NC-SA 4.0
-Copyright (c) original source: https://github.com/LBM-EPFL/PeSTo/tree/main
+for_visualization.py: Helper function for visualization
+Omid Mokhtari - Inria 2025
+This file is part of DynamicGT.
+Released under CC BY-NC-SA 4.0 License
 """
 
 import numpy as np
