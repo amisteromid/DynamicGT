@@ -1,5 +1,5 @@
 """
-for_visualization.py: Helper function for visualization
+train.py: Training functions
 Omid Mokhtari - Inria 2025
 This file is part of DynamicGT.
 Released under CC BY-NC-SA 4.0 License
