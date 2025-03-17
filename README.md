@@ -27,6 +27,9 @@ git clone https://github.com/amisteromid/DynamicGT.git
 conda env create -f env.yml
 ```
 Ensure you have Git and Conda installed before proceeding.
+### **Geo-Distance Calculation**
+For geo-distance calculation, MSMS is a prerequisite. You can get it from [here](https://ccsb.scripps.edu/msms/downloads/).
+
 ## **Training the model**
 Follow these steps to train the model:
 1. Access the clusters of MD and AFlow data from Zenodo:
