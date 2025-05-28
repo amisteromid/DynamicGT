@@ -17,14 +17,18 @@ from typing import List, Dict, Any
 from glob import glob
 
 from utils.PDB_processing import StructuresDataset
-from utils.configs import dataset_configs
 from utils.feature_extraction import encode_sequence
-from utils.protein_chemistry import list_aa, std_elements
 from Bio.PDB.PDBExceptions import PDBConstructionWarning
 warnings.simplefilter('ignore', PDBConstructionWarning)
 
 #import torch.multiprocessing
-#torch.multiprocessing.set_sharing_strategy('file_system')
+pt.multiprocessing.set_sharing_strategy('file_system')
+
+std_elements = np.array([
+    'C', 'O', 'N', 'S', 'P', 'Se', 'Mg', 'Cl', 'Zn', 'Fe', 'Ca', 'Na',
+    'F', 'Mn', 'I', 'K', 'Br', 'Cu', 'Cd', 'Ni', 'Co', 'Sr', 'Hg', 'W',
+    'As', 'B', 'Mo', 'Ba', 'Pt'
+])
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Process protein structure data')
@@ -40,8 +44,12 @@ def parse_arguments() -> argparse.Namespace:
                         help='Number of worker processes for data loading')
     parser.add_argument('--min-sequence-length',
                         type=int,
-                        default=64,
+                        default=40,
                         help='Minimum sequence length to process')
+    parser.add_argument('--prefetch-factor',
+                        type=int,
+                        default=None,
+                        help='Number of prefetch factor')
     return parser.parse_args()
     
 def process_structures(input_path: str, output_path: str, 
@@ -55,21 +63,24 @@ def process_structures(input_path: str, output_path: str,
 
     # Initialize dataset and dataloader
     dataset = StructuresDataset(structure_files)
+    prefetch = prefetch_factor if num_workers > 0 else None
     dataloader = pt.utils.data.DataLoader(
         dataset,
         batch_size=None,
         shuffle=True,
         pin_memory=False,
-        num_workers=num_workers
+        num_workers=num_workers,
+        prefetch_factor=prefetch
     )
 
     device = pt.device("cuda")
     metadata = []
-
+    seqsfasta=''
     with h5py.File(output_path, 'w', libver='latest') as db:
         pbar = tqdm(dataloader, desc="Processing structures")
         
         for features_dic, sasa_dic_unbound, labels_dic, pdb_file in pbar:
+            #print (pdb_file,'is done')
             for each_chain, features in features_dic.items():
                 # Parse the IDs
                 pdbID, chainID = (pdb_file.split('.')[0].split('_') 
@@ -106,8 +117,7 @@ def process_structures(input_path: str, output_path: str,
                     continue
 
                 # Save sequence to FASTA file
-                with open("seqs.fasta", 'a') as fasta_file:
-                    fasta_file.write(f">{pdbID}_{chainID}\n{seq}\n")
+                seqsfasta+=f">{pdbID}_{chainID}\n{seq}\n"
 
                 # Store features and labels
                 metadata.append({
@@ -147,6 +157,8 @@ def process_structures(input_path: str, output_path: str,
         db['metadata/ID'] = np.array([m['ID'] for m in metadata]).astype(np.string_)
         db['metadata/size'] = np.array([m['size'] for m in metadata])
         db['metadata/seq'] = np.array([m['seq'] for m in metadata], dtype='S')
+    with open("seqs.fasta", 'a') as fasta_file:
+        fasta_file.write(seqsfasta)
 
 def main():
     args = parse_arguments()
@@ -156,7 +168,8 @@ def main():
             input_path=args.input,
             output_path=args.output,
             num_workers=args.num_workers,
-            min_sequence_length=args.min_sequence_length
+            min_sequence_length=args.min_sequence_length,
+            prefetch_factor=args.prefetch_factor
         )
         print(f"Successfully processed structures. Output saved to {args.output}")
     except Exception as e:

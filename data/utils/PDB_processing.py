@@ -209,82 +209,83 @@ class StructuresDataset(pt.utils.data.Dataset):
         return len(self.structures_folder)
 
     def __getitem__(self, i):
-        threshold = 0.04
         pdb_parent = self.structures_folder[i]
+        try:
+            threshold = 0.04
+            print(f"[INFO] Loading {pdb_parent}")
+    
+            pdb_chains = split_nmr_pdb(pdb_parent)
+            pdb_id, chain_id_og = parse_pdb_info(pdb_parent)
+            assert len(pdb_chains) == 1, f"More than one chain in {pdb_parent}"
+    
+            features_dic = {}
+            models = list(pdb_chains.values())[0]
+            pdb_file = make_pdb(models)
+            aa_map, seq, atom_type, atoms_xyz = read_pdb(pdb_file)
+            seq = ''.join(seq)
+    
+            nan_positions = np.argwhere(np.isnan(atoms_xyz))
+            assert nan_positions.size == 0, f"NaNs in {pdb_parent} at {nan_positions}"
+    
+            mean_xyz = mean_coordinates(atoms_xyz)
+            R, D = extract_topology(mean_xyz)
+            knn = min(64, D.shape[0])
+            D_nn, nn_topk = pt.topk(pt.tensor(D), knn, dim=1, largest=False)
+            R_nn = pt.gather(pt.tensor(R), 1, nn_topk.unsqueeze(2).repeat(1, 1, R.shape[2])).to(pt.float32)
+            motion_v_nn, motion_s_nn, rmsf1, rmsf2, CP_nn = extract_dynamic_features(atoms_xyz, nn_topk.numpy())
+            assert D.shape[0] == len(aa_map)
+    
+            features = (aa_map, seq, atom_type, D_nn, R_nn, motion_v_nn, motion_s_nn, rmsf1, rmsf2, CP_nn, nn_topk)
+            features_dic[chain_id_og] = features
+    
+            new_pdb_parent = fetch_pdb(pdb_id)
+            sasa_dic_bound, labeled_seqs = get_sasa_bound(new_pdb_parent)
+            sasa_dic_unbound, labeled_seqs2 = get_sasa_unbound(new_pdb_parent)
+            assert labeled_seqs2[chain_id_og] == labeled_seqs[chain_id_og], f"{pdb_parent} bound/unbound mismatch"
+    
+            unlabeled_seqs = {key: value[1] for key, value in features_dic.items()}
+            mapped_labels_dic = {}
+            mapped_sasa_dic_unbound = {}
+    
+            for each_chain in unlabeled_seqs:
+                sasa_dic_unbound[each_chain] = fill_nan_with_neighbors(sasa_dic_unbound[each_chain])
+                sasa_dic_bound[each_chain] = fill_nan_with_neighbors(sasa_dic_bound[each_chain])
+                assert len(labeled_seqs[each_chain]) == len(sasa_dic_unbound[each_chain])
+    
+                original_labels = np.array([1 if y - x >= threshold else 0 for x, y in zip(sasa_dic_bound[each_chain], sasa_dic_unbound[each_chain])])
+                alignment = pairwise2.align.globalms(unlabeled_seqs[each_chain], labeled_seqs[each_chain], 2, -2, -7, -2)[0]
+                unlabeled_seq_aligned, labeled_seq_aligned = alignment[0], alignment[1]
         
-        # Split by chain
-        pdb_chains = split_nmr_pdb(pdb_parent)
-        pdb_id, chain_id_og = parse_pdb_info(pdb_parent)
-        
-        assert len(pdb_chains)==1, "more than one chain exist"
-        
-        features_dic = {}
-        models = list(pdb_chains.values())[0]
-        pdb_file = make_pdb(models)
-        aa_map, seq, atom_type, atoms_xyz = read_pdb(pdb_file)
-        seq=''.join(seq)
-        nan_positions = np.argwhere(np.isnan(atoms_xyz))
-        assert nan_positions.size == 0, f"NaN values found in {pdb_parent} at positions: {nan_positions}\n{backbone_xyz[0][nan_positions[0][1]]}\n{backbone_xyz[0][nan_positions[0][1]-1]}"
-        mean_xyz = mean_coordinates(atoms_xyz)
-        R, D= extract_topology(mean_xyz)
-        # Indices of nearest neighbors
-        knn = min(64, D.shape[0])
-        D_nn, nn_topk = pt.topk(pt.tensor(D), knn, dim=1, largest=False)  # Sorted indices from nearest farthest
-        R_nn = pt.gather(pt.tensor(R), 1, nn_topk.unsqueeze(2).repeat(1, 1, R.shape[2])).to(pt.float32)
-        motion_v_nn, motion_s_nn, rmsf1, rmsf2, CP_nn = extract_dynamic_features(atoms_xyz, nn_topk.numpy())
-        assert D.shape[0] == len(aa_map)
-        
-        features = (aa_map, seq, atom_type, D_nn, R_nn, motion_v_nn, motion_s_nn, rmsf1, rmsf2, CP_nn, nn_topk)
-        features_dic[chain_id_og]=features
-        
-        # Calculate SASA
-        new_pdb_parent = fetch_pdb(pdb_id)
-        sasa_dic_bound, labeled_seqs = get_sasa_bound(new_pdb_parent)
-        sasa_dic_unbound, labeled_seqs2 = get_sasa_unbound(new_pdb_parent)
-        assert labeled_seqs2[chain_id_og]==labeled_seqs[chain_id_og], f"{pdb_parent} bound and unbound seqs don't match\n{labeled_seqs}\n{labeled_seqs2}"
-        
-        unlabeled_seqs = {key:value[1] for key, value in features_dic.items()}
-         
-        mapped_labels_dic={}
-        mapped_sasa_dic_unbound={}
-        for each_chain in unlabeled_seqs:
-            sasa_dic_unbound[each_chain] = fill_nan_with_neighbors(sasa_dic_unbound[each_chain])
-            sasa_dic_bound[each_chain] = fill_nan_with_neighbors(sasa_dic_bound[each_chain])
-            assert len(labeled_seqs[each_chain]) == len(sasa_dic_unbound[each_chain]), "labeled seq does not match with labels"
-            original_labels = np.array([1 if y-x >= threshold else 0 for x, y in zip(sasa_dic_bound[each_chain], sasa_dic_unbound[each_chain])])
-            
-            # # Map labels on features indices
-            alignment = pairwise2.align.globalms(unlabeled_seqs[each_chain], labeled_seqs[each_chain], 2, -2, -7, -2)[0]
-            unlabeled_seq_aligned, labeled_seq_aligned = alignment[0], alignment[1]
-            
-            # Initialize the mapped labels and SASA arrays
-            mapped_labels = []
-            mapped_sasa = []
-            l_index = 0 
-            for u_residue, l_residue in zip(unlabeled_seq_aligned, labeled_seq_aligned):
-                if u_residue == '-':
-            	    l_index += 1
-                elif l_residue == '-':
-                    mapped_labels.append(0)
-                    if mapped_sasa:
-                        mapped_sasa.append(mapped_sasa[-1])
+                mapped_labels = []
+                mapped_sasa = []
+                l_index = 0
+                for u_residue, l_residue in zip(unlabeled_seq_aligned, labeled_seq_aligned):
+                    if u_residue == '-':
+                        l_index += 1
+                    elif l_residue == '-':
+                        mapped_labels.append(0)
+                        mapped_sasa.append(mapped_sasa[-1] if mapped_sasa else sasa_dic_unbound[each_chain][l_index])
                     else:
+                        mapped_labels.append(original_labels[l_index])
                         mapped_sasa.append(sasa_dic_unbound[each_chain][l_index])
-                else:
-                    mapped_labels.append(original_labels[l_index])
-                    mapped_sasa.append(sasa_dic_unbound[each_chain][l_index])
-                    l_index += 1
-                    
-            mapped_sasa = fill_nan_with_neighbors(np.array(mapped_sasa))
-            mapped_labels = np.array(mapped_labels)
-            
-            # Map SASA values to each atom based on aa_map
-            aa_map = np.array(features_dic[each_chain][0])
-            mapped_sasa = np.array(mapped_sasa)[aa_map - 1]
-            
-            mapped_sasa_dic_unbound[each_chain] = mapped_sasa 
-            mapped_labels_dic[each_chain] = mapped_labels
-        return features_dic, mapped_sasa_dic_unbound, mapped_labels_dic, pdb_parent.split('/')[-1]
+                        l_index += 1
+    
+                mapped_sasa = fill_nan_with_neighbors(np.array(mapped_sasa))
+                mapped_labels = np.array(mapped_labels)
+                aa_map = np.array(features_dic[each_chain][0])
+                mapped_sasa = np.array(mapped_sasa)[aa_map - 1]
+    
+                mapped_sasa_dic_unbound[each_chain] = mapped_sasa
+                mapped_labels_dic[each_chain] = mapped_labels
+
+            return features_dic, mapped_sasa_dic_unbound, mapped_labels_dic, pdb_parent.split('/')[-1]
+    
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] Failed to process: {pdb_parent}")
+            traceback.print_exc()
+            raise RuntimeError(f"Error in {pdb_parent}: {e}")
+
 	
 			
 			
