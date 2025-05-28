@@ -18,19 +18,35 @@ import wandb
 from torchvision.ops import sigmoid_focal_loss
 
 
-class GeoFocalLoss(pt.nn.Module):
-    def __init__(self, alpha, beta, gamma):
+class GeoFocalLoss(pt.nn.Module): 
+    def __init__(self, alpha, beta, gamma, learn_beta=False):
         super(GeoFocalLoss, self).__init__()
         self.alpha = alpha
-        self.beta = beta
         self.gamma = gamma
+        self.learn_beta = learn_beta
+
+        beta_tensor = pt.tensor(beta, dtype=pt.float32)
+        if learn_beta:
+            self._beta_parameter = pt.nn.Parameter(beta_tensor)
+        else:
+            self.register_buffer('_fixed_beta', beta_tensor)
+
+    @property
+    def beta(self):
+        if self.learn_beta:
+            return 4.0 * pt.tanh(self._beta_parameter)
+        else:
+            return self._fixed_beta
+
     def forward(self, inputs, targets, dists):
-        # Compute Focal loss
-        FocalLoss = sigmoid_focal_loss(inputs, targets, alpha=self.alpha, gamma=self.gamma, reduction='none')
-        # Apply the geo term
-        geo_term = pt.exp(-1* (dists ** self.beta))
-        geo_loss = FocalLoss * geo_term
+        print(f"Beta value is {self.beta.item()}!!!!!!!!!!!!!!!!!!!")
+
+        focal_loss = sigmoid_focal_loss(inputs, targets, alpha=self.alpha, gamma=self.gamma, reduction='none')
+        safe_dists = dists.clamp(min=1e-6)
+        geo_term = pt.exp(-pt.pow(safe_dists, self.beta))
+        geo_loss = focal_loss * geo_term
         return geo_loss.mean()
+
 
 
 def scoring(eval_results, device=pt.device('cpu')):
@@ -79,10 +95,10 @@ def train(config_data, config_model, config_runtime, output_path):
     model = model.to(device)
     
     # define loss fuction
-    loss_fn = GeoFocalLoss(alpha=config_runtime['loss_alpha'], beta=config_runtime['loss_beta'], gamma=config_runtime['loss_gamma'])
+    loss_fn = GeoFocalLoss(alpha=config_runtime['loss_alpha'], beta=config_runtime['loss_beta'], gamma=config_runtime['loss_gamma'], learn_beta=True)
     
     # define optimizer
-    optimizer = pt.optim.Adam(model.parameters(), lr=config_runtime["learning_rate"])
+    optimizer = pt.optim.Adam([*model.parameters(), *loss_fn.parameters()], lr=config_runtime["learning_rate"])
     
     # min loss initial value
     min_loss = 1e9

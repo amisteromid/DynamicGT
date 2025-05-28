@@ -9,7 +9,7 @@ config_runtime = {
     'eval_size': 256,
     'learning_rate': 1e-5,
     'loss_alpha': 0.7,
-    'loss_beta': 2,
+    'loss_beta': 0,
     'loss_gamma': 2,
     'patience': 60,
     'rsa_thr': 0.16,
