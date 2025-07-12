@@ -284,8 +284,8 @@ class StructuresDataset(pt.utils.data.Dataset):
             import traceback
             print(f"[ERROR] Failed to process: {pdb_parent}")
             traceback.print_exc()
-            raise RuntimeError(f"Error in {pdb_parent}: {e}")
-
+            #raise RuntimeError(f"Error in {pdb_parent}: {e}")
+            return None, None, None, pdb_parent.split('/')[-1]
 	
 			
 			

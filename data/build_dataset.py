@@ -80,7 +80,7 @@ def process_structures(input_path: str, output_path: str,
         pbar = tqdm(dataloader, desc="Processing structures")
         
         for features_dic, sasa_dic_unbound, labels_dic, pdb_file in pbar:
-            #print (pdb_file,'is done')
+            if features_dic==None or sasa_dic_unbound==None or labels_dic == None: continue
             for each_chain, features in features_dic.items():
                 # Parse the IDs
                 pdbID, chainID = (pdb_file.split('.')[0].split('_') 
