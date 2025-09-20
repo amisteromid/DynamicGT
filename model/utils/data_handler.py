@@ -58,7 +58,7 @@ def collate_batch_features(batch_data, max_num_nn=64):
         ix0 = ix1 - data[0].shape[0]
         
         # Store nearest neighbors features
-        nn_topk[ix0:ix1, :data[4].shape[1]] = data[4]
+        nn_topk[ix0:ix1, :data[4].shape[1]] = data[4] + ix0
         D_nn[ix0:ix1, :data[5].shape[1], :] = data[5]
         R_nn[ix0:ix1, :data[6].shape[1], :] = data[6]
         motion_v_nn[ix0:ix1, :data[7].shape[1], :] = data[7]
