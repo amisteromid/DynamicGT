@@ -1,27 +1,10 @@
-config_runtime = {
-    'output_dir': 'save',
-    'reload': True,
-    'device': 'cuda',
-    'num_epochs': 100,
-    'batch_size': 1,
-    'log_step': 256,
-    'eval_step': 256,
-    'eval_size': 256,
-    'learning_rate': 1e-5,
-    'loss_alpha': 0.7,
-    'loss_beta': 0,
-    'loss_gamma': 2,
-    'patience': 60,
-    'rsa_thr': 0.16,
-}
-
 config_data = {
-    'dataset_filepath': "/home/omokhtari/public/ppi_model/data/db.h5",
-    'train_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting/train.txt',
-    'valid_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting/valid.txt',
+    'dataset_filepath': "/home/omokhtari/public/ppi_model/data/db_aflow_all_with_dists.h5",
+    'train_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting_MD_vs_AFlow/train.txt',
+    'test_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting_MD_vs_AFlow/valid.txt',
+    'valid_selection_filepath': '/home/omokhtari/public/ppi_model/data/splitting_MD_vs_AFlow/valid.txt',
     'max_size': 1024*8,
 }
-
 
 config_model = {
     "em": {'N0': 33, 'N1': 32},
@@ -61,7 +44,27 @@ config_model = {
         {'Ns': 32, 'Nh': 2, 'Nk':3, 'nn': 48},
         {'Ns': 32, 'Nh': 2, 'Nk':3, 'nn': 48},
         {'Ns': 32, 'Nh': 2, 'Nk':3, 'nn': 48},
+
+
     ],
     "spl": {'N0': 32, 'N1': 32, 'Nh': 4},
     "dm": {'N0': 32, 'N1': 32, 'N2': 1}
+}
+
+
+config_runtime = {
+    'output_dir': 'save',
+    'reload': True,
+    'device': 'cuda:0',
+    'num_epochs': 100,
+    'batch_size': 1,
+    'log_step': 256,
+    'eval_step': 256,
+    'eval_size': 256,
+    'learning_rate': 1e-5,
+    'loss_alpha': 0.7,
+    'loss_beta': 0,
+    'loss_gamma': 2,
+    'patience': 200,
+    'rsa_thr': 0.16,
 }

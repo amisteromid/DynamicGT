@@ -11,7 +11,7 @@ import wandb
 from torchvision.ops import sigmoid_focal_loss
 
 
-wandb.login(key='XXX')
+wandb.login(key='aa3d83b08d1587884348defb38d3143f893e2b96')
 
 class GeoFocalLoss(pt.nn.Module): 
     def __init__(self, alpha, beta, gamma, learn_beta=False):
@@ -34,11 +34,11 @@ class GeoFocalLoss(pt.nn.Module):
             return self._fixed_beta
 
     def forward(self, inputs, targets, dists):
+        #print(f"Beta value is {self.beta.item()}!!!!!!!!!!!!!!!!!!!")
 
         focal_loss = sigmoid_focal_loss(inputs, targets, alpha=self.alpha, gamma=self.gamma, reduction='none')
         safe_dists = dists.clamp(min=1e-6)
         geo_term = pt.exp(-pt.pow(safe_dists, self.beta))
-        geo_term[dists == 0] = 1e-6
         geo_loss = focal_loss * geo_term
         return geo_loss.mean()
 
@@ -46,6 +46,7 @@ def scoring(eval_results, device=pt.device('cpu')):
     # compute sum losses and scores for each entry
     losses, scores = [], []
     for loss, y, p in eval_results:
+        #print (list(zip(y,p)))
         losses.append(loss)
         scores.append(bc_scoring(y, p))
 
@@ -82,10 +83,10 @@ def train(config_data, config_model, config_runtime, output_path):
     print(model)
     print(f"> {sum([int(pt.prod(pt.tensor(p.shape))) for p in model.parameters()])} parameters")
     
-    model_filepath = '/home/omokhtari/public/ppi_model/model/model_xxx.pt'
+    model_filepath = '/home/omokhtari/public/ppi_model/model/model_AFlow_minimised.pt'
     if os.path.isfile(model_filepath):
         model.load_state_dict(pt.load(model_filepath))
-        global_step = 139775
+        global_step = 34559
     else:
         # starting global step
         global_step = 0
@@ -180,7 +181,7 @@ def train(config_data, config_model, config_runtime, output_path):
                         # update min loss
                         min_loss = current_loss
                         # save model
-                        model_filepath = os.path.join(output_path, 'model_revision_MD.pt')
+                        model_filepath = os.path.join(output_path, 'model_AFlow_minimised.pt')
                         pt.save(model.state_dict(), model_filepath)
                         # Early stopping check
                         patience_counter = 0

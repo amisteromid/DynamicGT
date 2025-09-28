@@ -1,10 +1,3 @@
-"""
-data_handler.py: Building dataloaders
-Omid Mokhtari - Inria 2025
-This file is part of DynamicGT.
-Released under CC BY-NC-SA 4.0 License
-"""
-
 import torch as pt
 import h5py
 import numpy as np
@@ -13,13 +6,22 @@ from utils.configs import config_data, config_model, config_runtime
 def setup_dataloader(config_data, sids_selection_filepath):
     sids_sel = np.genfromtxt(sids_selection_filepath, dtype=np.dtype('U'))
     dataset = Dataset(config_data['dataset_filepath'])
-    sids = np.array([key for key in dataset.ID])    
+    
+    sids = np.array([key for key in dataset.ID])
+    
     m = np.isin(sids, sids_sel)
+
     # Further filter out big ones
     sizes = np.array([s for s in dataset.size[:,1]])
-    big_ones = np.where(sizes > 450)
+    big_ones = np.where(sizes > 350)
+    small_ones = np.where(sizes <30)
+    m[small_ones] = False
     m[big_ones] = False
+
     dataset.update_mask(m)
+    print ('!!!!!!!!!!!!!!!!!!!!')
+    print ('dataset size: ',len(dataset))
+    
     # define data loader
     dataloader = pt.utils.data.DataLoader(dataset, batch_size=config_runtime['batch_size'], shuffle=True, num_workers=8, collate_fn=collate_batch_data, pin_memory=True, prefetch_factor=2)
     return dataloader
@@ -28,12 +30,15 @@ def setup_dataloader(config_data, sids_selection_filepath):
 def collate_batch_data(batch_data):
     # collate features
     onehot_seq, rmsf1, rmsf2, rsa, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, mapping = collate_batch_features(batch_data)
-    # collate labels
+
+    # collate targets
     dists = pt.cat([data[12] for data in batch_data])
     y = pt.cat([data[11] for data in batch_data])
+
     return onehot_seq, rmsf1, rmsf2, rsa, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, mapping, y, dists
 
 def collate_batch_features(batch_data, max_num_nn=64): 
+    # Pack node features
     onehot_seq, rmsf1, rmsf2, rsa = [
         pt.cat([data[i] for data in batch_data], dim=0) for i in range(4)
     ]
@@ -58,7 +63,7 @@ def collate_batch_features(batch_data, max_num_nn=64):
         ix0 = ix1 - data[0].shape[0]
         
         # Store nearest neighbors features
-        nn_topk[ix0:ix1, :data[4].shape[1]] = data[4] + ix0
+        nn_topk[ix0:ix1, :data[4].shape[1]] = data[4]
         D_nn[ix0:ix1, :data[5].shape[1], :] = data[5]
         R_nn[ix0:ix1, :data[6].shape[1], :] = data[6]
         motion_v_nn[ix0:ix1, :data[7].shape[1], :] = data[7]
@@ -72,18 +77,22 @@ def collate_batch_features(batch_data, max_num_nn=64):
 class Dataset(pt.utils.data.Dataset):
     def __init__(self, dataset_filepath):
         super(Dataset, self).__init__()
+        # store dataset filepath
         self.dataset_filepath = dataset_filepath
 
+        # preload data
         with h5py.File(dataset_filepath, 'r') as hf:
+            # load ID, sizes and seq
             self.ID = np.array(hf["metadata/ID"]).astype(np.dtype('U'))
             self.size = np.array(hf["metadata/size"])
             self.seq = np.array(hf["metadata/seq"]).astype(np.dtype('U'))
 
-        # default selection mask
+        # set default selection mask
         self.m = np.ones(len(self.ID), dtype=bool)    
     
     def update_mask(self, m):
-        self.m &= m # boolean vector with the size of whole dataset for masking
+        # update mask
+        self.m &= m # boolean vector with the size of whole dataset
 
     def get_largest(self):
         i = np.argmax(self.size[:,0] * self.m.astype(int))
@@ -94,25 +103,39 @@ class Dataset(pt.utils.data.Dataset):
         return np.sum(self.m)
 
     def __getitem__(self, k): # k is the indice of entry
-        masked_indices = np.where(self.m)[0]
+        # Adjust index k to the masked index
+        masked_indices = np.where(self.m)[0] # chosen indices
         key_index = masked_indices[k]
+        #print (len(masked_indices), masked_indices)
         key = self.ID[key_index]
 
+        # load data
         with h5py.File(self.dataset_filepath, 'r') as hf:
+            # hdf5 group
             hgrp_f = hf[f'data/features/{key}']
             hgrp_l = hf[f'data/labels/{key}']
-          
+            
+            # atom to residue mapping
             mapping = pt.from_numpy(np.array(hgrp_f['aa_map']))
+
+            # node features
             onehot_seq = pt.from_numpy(np.array(hgrp_f['onehot_seq']))
             rmsf1 = pt.from_numpy(np.array(hgrp_f['rmsf1']))
             rmsf2 = pt.from_numpy(np.array(hgrp_f['rmsf2']))
             rsa = pt.from_numpy(np.array(hgrp_f['rsa']))
+            
+            # neighbor indices
             nn_topk = pt.from_numpy(np.array(hgrp_f['nn_topk']))
+            
+            # edge features
             D_nn = pt.from_numpy(np.array(hgrp_f['D_nn']))
             R_nn = pt.from_numpy(np.array(hgrp_f['R_nn']))
             motion_v_nn = pt.from_numpy(np.array(hgrp_f['motion_v_nn']))
             motion_s_nn = pt.from_numpy(np.array(hgrp_f['motion_s_nn']))
             CP_nn = pt.from_numpy(np.array(hgrp_f['CP_nn']))
+
+            # interface labels
             dists = pt.from_numpy(np.array(hgrp_l['dist']))
             y = pt.from_numpy(np.array(hgrp_l['label']))
+
         return onehot_seq, rmsf1, rmsf2, rsa, nn_topk, D_nn, R_nn, motion_v_nn, motion_s_nn, CP_nn, mapping, y, dists
