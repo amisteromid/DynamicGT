@@ -19,7 +19,6 @@ from Bio.pairwise2 import format_alignment
 import gemmi
 from Bio.Data.SCOPData import protein_letters_3to1
 import json
-import pandas as pd
 
 from utils.feature_extraction import extract_dynamic_features, encode_sequence, mean_coordinates, extract_topology
 from utils.make_labels import fetch_pdb,parse_pdb_info, split_pdb_by_chain_to_files, filter_chain_to_structure
@@ -84,10 +83,15 @@ def make_pdb(chains):
     return temp_file.name
 
 def fill_nan_with_neighbors(sasa_array):
-    series = pd.Series(sasa_array)
-    series_interpolated = series.interpolate(method='linear')
-    series_filled = series_interpolated.bfill().ffill()
-    return series_filled.to_numpy()
+    arr = np.array(sasa_array, dtype=float)
+    not_nan = ~np.isnan(arr)
+    if not np.any(not_nan):
+        return arr
+    indices = np.arange(len(arr))
+    arr[not_nan] = arr[not_nan]
+    arr = np.interp(indices, indices[not_nan], arr[not_nan])
+    
+    return arr
     
 def get_sasa_bound(pdb_filename):
     parser = PDBParser()
@@ -286,6 +290,7 @@ class StructuresDataset(pt.utils.data.Dataset):
             traceback.print_exc()
             #raise RuntimeError(f"Error in {pdb_parent}: {e}")
             return None, None, None, pdb_parent.split('/')[-1]
+
 	
 			
 			
