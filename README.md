@@ -22,10 +22,23 @@ The following figure illustrates the architecture and workflow of the DynamicGT 
 ## **Installation**
 To set up the project, follow these steps:
 
+Option 1
 ```bash
 git clone https://github.com/amisteromid/DynamicGT.git
-conda env create -f env.yml
+conda env create -f env.yml -n DynamicGT
 ```
+Option 2
+```bash
+conda create -n DynamicGT python=3.10 -y
+conda activate DynamicGT
+
+pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
+pip install glob2 tqdm h5py numpy scipy wandb scikit-learn gemmi biopython
+pip install torch-scatter -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
+pip install torch-geometric -f https://data.pyg.org/whl/torch-2.4.1+cu121.html
+```
+
+
 Ensure you have Git and Conda installed before proceeding.
 ### **Geo-Distance Calculation**
 For geo-distance calculation, MSMS is a prerequisite. You can get it from [here](https://ccsb.scripps.edu/msms/downloads/).
